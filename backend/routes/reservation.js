@@ -20,31 +20,6 @@ const transporter = EMAIL_ENABLED ? nodemailer.createTransport({
     tls: { rejectUnauthorized: false }
 }) : null;
 const FROM = process.env.EMAIL_FROM || `"MonChauffeur 2.0" <${process.env.EMAIL_USER}>`;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-
-async function sendViaResend(to, subject, html, replyTo) {
-    if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY non défini');
-    const body = {
-        from: FROM,
-        to,
-        subject,
-        html,
-        ...(replyTo ? { reply_to: replyTo } : {})
-    };
-    const resp = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    });
-    if (!resp.ok) {
-        const txt = await resp.text();
-        throw new Error(`Resend API error ${resp.status}: ${txt}`);
-    }
-    return resp.json();
-}
 
 // -------------------- ROUTE POST /api/reservations --------------------
 router.post('/', async (req, res) => {
@@ -120,11 +95,8 @@ router.post('/', async (req, res) => {
             `
         };
 
-        // 4️⃣ Envoi des deux emails
-        if (RESEND_API_KEY) {
-            await sendViaResend(email, mailClient.subject, mailClient.html, email);
-            await sendViaResend(process.env.EMAIL_USER, mailAdmin.subject, mailAdmin.html);
-        } else if (EMAIL_ENABLED && transporter) {
+        // 4️⃣ Envoi des deux emails (SMTP)
+        if (EMAIL_ENABLED && transporter) {
             await transporter.sendMail(mailClient);
             await transporter.sendMail(mailAdmin);
         }
