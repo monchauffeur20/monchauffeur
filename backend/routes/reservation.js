@@ -6,14 +6,17 @@ require('dotenv').config();
 
 // -------------------- CONFIG EMAIL --------------------
 const EMAIL_ENABLED = process.env.EMAIL_ENABLED === 'true';
+const EMAIL_SECURE = process.env.EMAIL_SECURE === 'true' || String(process.env.EMAIL_PORT) === '465';
 const transporter = EMAIL_ENABLED ? nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: parseInt(process.env.EMAIL_PORT),
-    secure: false,
+    secure: EMAIL_SECURE,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
     },
+    connectionTimeout: 15000,
+    socketTimeout: 20000,
     tls: { rejectUnauthorized: false }
 }) : null;
 
