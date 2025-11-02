@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MonChauffeur 2.0 - Votre chauffeur personnel à la demande</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #0f172a;
+            background: #0f172a;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+
+        .animated-bg::before,
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .animated-bg::before {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .animated-bg::after {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #ec4899, #f59e0b);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(100px, 100px) rotate(90deg); }
+            50% { transform: translate(200px, 50px) rotate(180deg); }
+            75% { transform: translate(50px, 150px) rotate(270deg); }
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        header.scrolled {
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .logo-img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 600;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 2rem 80px;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            font-weight: 900;
+            letter-spacing: -2px;
+            animation: fadeInUp 1s;
+        }
+
+        .hero-text p {
+            font-size: 1.3rem;
+            color: #94a3b8;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero {
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-hero-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-hero-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-hero-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        /* Hero Image */
+        .hero-image {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .hero-image img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 2rem;
+            position: relative;
+        }
+
+        .features-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-bottom: 4rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 3rem;
+            border-radius: 30px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 { 
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card p {
+            color: #94a3b8;
+            line-height: 1.8;
+            position: relative;     
+            z-index: 1;
+        }
+
+        /* Steps Section */
+        .steps-section {
+            padding: 120px 2rem;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .steps-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .step-card {
+            text-align: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .step-number {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            margin: 0 auto 2rem;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+            position: relative;
+        }
+
+        .step-number::before {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            animation: ripple 2s infinite;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .step-card h3 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .step-card p {
+            color: #94a3b8;
+            line-height: 1.8;
+        }
+
+        /* Reservation Form */
+        .reservation-section {
+            padding: 120px 2rem;
+        }
+
+        .reservation-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 4rem;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(148, 163, 184, 0.1);
+            border-radius: 15px;
+            font-size: 1rem;
+            color: #fff;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Contract Clause Styles */
+        .contract-box {
+            background: rgba(59, 130, 246, 0.05);
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .contract-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .contract-box::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .contract-box::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.5);
+            border-radius: 10px;
+        }
+
+        .contract-box::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.7);
+        }
+
+        .contract-title {
+            color: #3b82f6;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+
+        .contract-content {
+            color: #cbd5e1;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .contract-content p {
+            margin-bottom: 1rem;
+        }
+
+        .contract-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contract-content li {
+            margin-bottom: 1rem;
+        }
+
+        .contract-content strong {
+            color: #fff;
+        }
+
+        .highlight-warning {
+            color: #f59e0b;
+        }
+
+        .checkbox-container {
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border: 2px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            cursor: pointer;
+            margin-top: 2px;
+            accent-color: #3b82f6;
+        }
+
+        .checkbox-container label {
+            color: #cbd5e1;
+            font-size: 1rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-container .required {
+            color: #ef4444;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            animation: slideDown 0.5s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Contact Section */
+        .contact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 3rem;
+            border-radius: 30px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ec4899, #f59e0b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
+        }
+
+        .contact-card h3 {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .contact-card p {
+            color: #94a3b8;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 968px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-text h1 {
+                font-size: 3rem;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                background: rgba(15, 23, 42, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 3rem 2rem;
+                transition: left 0.3s;
+                border-top: 1px solid rgba(148, 163, 184, 0.1);
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .form-card {
+                padding: 2rem;
+            }
+
+            .contract-box {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <header id="header">
+        <nav>
+            <div class="logo">
+                <a href="#accueil" class="logo" onclick="showSection('accueil')">
+                    <img src="images/logo rouge.png" alt="Logo MonChauffeur 2.0" class="logo-img" />
+                </a>    
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#accueil" onclick="showSection('accueil')">Accueil</a></li>
+                <li><a href="#comment-ca-marche" onclick="showSection('comment-ca-marche')">Comment ça marche</a></li>
+                <li><a href="#reserver" onclick="showSection('reserver')">Réserver</a></li>
+                <li><a href="#contact" onclick="showSection('contact')">Contact</a></li>
+                <li><button class="btn-primary" onclick="showSection('reserver')">Réserver maintenant</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Section Accueil -->
+    <section id="accueil" class="page-section">
+        <div class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Votre Chauffeur Personnel à la Demande</h1>
+                    <p>
+                        Vous avez votre voiture mais ne pouvez pas conduire ? 
+                        Notre service innovant vous met à disposition un chauffeur professionnel 
+                        qui conduit VOTRE véhicule en toute sécurité.
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn-hero btn-hero-primary" onclick="showSection('reserver')">
+                            Réserver un chauffeur
+                        </button>
+                        <button class="btn-hero btn-hero-secondary" onclick="showSection('comment-ca-marche')">
+                            Découvrir le service
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hero-image">
+                    <img src="images/Voiture-chauffeur.jpg" alt="Service de chauffeur" class="hero-photo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Comment ça marche -->
+    <section id="comment-ca-marche" class="page-section hidden">
+        <div class="steps-section">
+            <div class="steps-container">
+                <h2 class="section-title">Comment ça marche ?</h2>
+                <p class="section-subtitle">Un processus simple et rapide en 4 étapes</p>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>Réservez en ligne</h3>
+                        <p>Remplissez notre formulaire en indiquant vos besoins : date, heure, adresses de départ et d'arrivée</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>Confirmation immédiate</h3>
+                        <p>Recevez votre confirmation par SMS et email avec les coordonnées de votre chauffeur professionnel</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>Chauffeur à l'heure</h3>
+                        <p>Votre chauffeur arrive ponctuel avec ses documents officiels et prend en main votre véhicule</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <h3>Voyage en sérénité</h3>
+                        <p>Profitez de votre trajet en toute tranquillité pendant que nous conduisons votre voiture</p>
+                    </div>
+                </div>
+
+                <div class="features" style="padding-top: 80px;">
+                    <h3 class="section-title" style="font-size: 2.5rem;">Idéal pour toutes occasions</h3>
+                    <div class="features-grid" style="margin-top: 3rem;">
+                        <div class="feature-card">
+                            <img src="images/bottle_10215658.png" alt="Événements">
+                            <h3>Soirées & Événements</h3>
+                            <p>Mariages, anniversaires, fêtes - profitez sans vous soucier du retour</p>
+                        </div>
+                        <div class="feature-card">
+                            <img src="images/fatigue_18116019.png" alt="Fatigue">
+                            <h3>Fatigue & Longs Trajets</h3>
+                            <p>Voyage d'affaires ou personnel, laissez-nous conduire pendant que vous vous reposez</p>
+                        </div>
+                        <div class="feature-card">
+                            <img src="images/medical_11523538 (1).png" alt="Médical">
+                            <h3>Raisons Médicales</h3>
+                            <p>Rendez-vous médicaux, convalescence, ou toute situation nécessitant un repos</p>
+                        </div>
+                        <div class="feature-card">
+                            <img src="images/ticket_14126377.png" alt="Transferts">
+                            <h3>Transferts Aéroport</h3>
+                            <p>Déplacements vers et depuis l'aéroport dans le confort de votre propre véhicule</p>
+                        </div>
+                        <div class="feature-card">
+                            <img src="images/career_15913805.png" alt="Professionnel">
+                            <h3>Déplacements Professionnels</h3>
+                            <p>Réunions importantes où vous devez arriver détendu et préparé</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Réserver -->
+    <section id="reserver" class="page-section hidden">
+        <div class="reservation-section">
+            <div class="reservation-container">
+                <h2 class="section-title">Réservez votre chauffeur</h2>
+                <p class="section-subtitle">Remplissez le formulaire et recevez une confirmation sous 30 minutes</p>
+                
+                <div class="form-card">
+                    <div id="successMessage" class="success-message hidden">
+                        ✅ Votre demande a été envoyée avec succès ! Nous vous contacterons dans les 30 minutes.
+                    </div>
+                    <form id="reservationForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nom">Nom complet *</label>
+                                <input type="text" id="nom" name="nom" required placeholder="Jean Dupont">
+                            </div>
+                            <div class="form-group">
+                                <label for="telephone">Téléphone *</label>
+                                <input type="tel" id="telephone" name="telephone" required placeholder="+225 07 00 00 00 00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="votre@email.com">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="date">Date de service *</label>
+                                <input type="date" id="date" name="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="heure">Heure de prise en charge *</label>
+                                <input type="time" id="heure" name="heure" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="depart">Adresse de départ *</label>
+                            <input type="text" id="depart" name="depart" required placeholder="Ex: Cocody, Angré 7ème tranche">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="arrivee">Adresse d'arrivée *</label>
+                            <input type="text" id="arrivee" name="arrivee" required placeholder="Ex: Plateau, Avenue Chardy">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicule">Type de véhicule *</label>
+                                <select id="vehicule" name="vehicule" required>
+                                    <option value="">Sélectionnez votre véhicule</option>
+                                    <option value="citadine">Citadine (Clio, 208, Polo...)</option>
+                                    <option value="berline">Berline (Camry, Accord, A4...)</option>
+                                    <option value="suv">SUV (RAV4, CRV, Q5...)</option>
+                                    <option value="monospace">Monospace (Sienna, Odyssey...)</option>
+                                    <option value="4x4">4x4 (Prado, Fortuner...)</option>
+                                    <option value="autre">Autre</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="passagers">Nombre de passagers</label>
+                                <input type="number" id="passagers" name="passagers" min="1" max="8" value="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="typeService">Type de service *</label>
+                            <select id="typeService" name="typeService" required>
+                                <option value="">Choisissez le type de service</option>
+                                <option value="simple">Trajet simple</option>
+                                <option value="aller-retour">Aller-retour</option>
+                                <option value="disponibilite">Mise à disposition (plusieurs heures)</option>
+                                <option value="journee">Service à la journée</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="details">Informations complémentaires</label>
+                            <textarea id="details" name="details" rows="4" placeholder="Précisez vos besoins particuliers, arrêts intermédiaires, bagages spéciaux, etc."></textarea>
+                        </div>
+
+                        <!-- Clause contractuelle -->
+<div class="form-group" style="margin-top: 2rem;">
+    <div class="contract-box">
+        <h3 class="contract-title">
+            📋 Clause : Assurance et responsabilité des parties
+        </h3>
+        
+        <div class="contract-content">
+            <p>
+                Le <strong>Chauffeur</strong> est engagé pour conduire le véhicule appartenant au <strong>Client</strong>, en présence de ce dernier, pour la durée convenue entre les parties.
+            </p>
+            
+            <p>
+                Le <strong>Client</strong> déclare que son véhicule est en bon état de fonctionnement, régulièrement entretenu, assuré, et apte à circuler sans danger.
+            </p>
+            
+            <p>
+                En cas de panne ou d'accident survenu au cours de la mission, les dispositions suivantes s'appliquent :
+            </p>
+            
+            <ol>
+                <li>
+                    Si la <strong>panne ou l'accident résulte d'un défaut mécanique</strong> ou d'un problème préexistant au véhicule (freinage défaillant, direction instable, pneus usés, etc.), la responsabilité du Chauffeur ne saurait être engagée. Dans ce cas, les frais de réparation et toutes les conséquences financières sont <strong class="highlight-warning">à la charge exclusive du Client</strong>.
+                </li>
+                
+                <li>
+                    Le Chauffeur s'engage à signaler immédiatement toute alerte, bruit anormal ou comportement inhabituel du véhicule. En cas de doute sur la sécurité du véhicule, <strong>il peut refuser de poursuivre la mission</strong>.
+                </li>
+                
+                <li>
+                    Si l'accident résulte d'une <strong>faute de conduite du Chauffeur</strong> (excès de vitesse, non-respect du code de la route, conduite dangereuse, etc.), les responsabilités sont appréciées selon les règles de droit commun. Dans ce cas, le Chauffeur peut être amené à prendre en charge, en tout ou partie, les conséquences de ses actes.
+                </li>
+            </ol>
+        </div>
+    </div>
+    
+    <!-- Checkbox de validation -->
+    <div class="checkbox-container">
+        <input type="checkbox" id="acceptContract" name="acceptContract" required>
+        <label for="acceptContract">
+            J'ai lu et j'accepte les <strong>termes et conditions</strong> du contrat de service, notamment la clause d'assurance et de responsabilité. Je confirme que mon véhicule est en bon état de fonctionnement et régulièrement assuré. <span class="required">*</span>
+        </label>
+    </div>
+</div>
+
+<!-- ✅ Message de succès ajouté -->
+<div id="successMessage" class="success-message hidden" style="margin-top: 1rem;">
+    ✅ Votre réservation a été envoyée avec succès !
+</div>
+
+<button type="submit" class="btn-hero btn-hero-primary" style="width: 100%; margin-top: 1.5rem;">
+    ✅ Confirmer ma réservation
+</button>
+</form>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section Contact -->
+<section id="contact" class="page-section hidden">
+    <div class="reservation-section">
+        <div class="steps-container">
+            <h2 class="section-title">Contactez-nous</h2>
+            <p class="section-subtitle">Notre équipe est à votre disposition 24h/24 et 7j/7</p>
+            
+            <div class="contact-cards">
+                <div class="contact-card">
+                    <div class="contact-icon">📞</div>
+                    <h3>Téléphone</h3>
+                    <p style="font-size: 1.2rem; font-weight: 600; color: #fff; margin: 1rem 0;"><br>+225 07 48 47 93 94<br/><br>+225 01 60 28 50 25<br/></p>
+                    <p style="font-size: 0.9rem;">Disponible 24h/24, 7j/7</p>
+                    <p style="font-size: 0.9rem;">Réponse immédiate</p>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">📧</div>
+                    <h3>Email</h3>
+                    <p style="font-size: 1.2rem; font-weight: 600; color: #fff; margin: 1rem 0;">contact@monchauffeur.ci</p>
+                    <p style="font-size: 0.9rem;">Réponse sous 2 heures</p>
+                    <p style="font-size: 0.9rem;">Service client dédié</p>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">📍</div>
+                    <h3>Localisation</h3>
+                    <p style="font-size: 1.2rem; font-weight: 600; color: #fff; margin: 1rem 0;">Abidjan, Côte d'Ivoire</p>
+                    <p style="font-size: 0.9rem;">Service dans toute la ville</p>
+                    <p style="font-size: 0.9rem;">Extension régionale prévue</p>
+                </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 4rem;">
+                <h3 style="margin-bottom: 2rem; text-align: center; color: #fff; font-size: 2rem;">Envoyez-nous un message</h3>
+                <div id="contactSuccessMessage" class="success-message hidden">
+                    ✅ Votre message a été envoyé avec succès ! Nous vous répondrons rapidement.
+                </div>
+                <form id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactNom">Nom complet *</label>
+                            <input type="text" id="contactNom" name="contactNom" required placeholder="Votre nom">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Email *</label>
+                            <input type="email" id="contactEmail" name="contactEmail" required placeholder="votre@email.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactTelephone">Téléphone</label>
+                        <input type="tel" id="contactTelephone" name="contactTelephone" placeholder="+225 07 00 00 00 00">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactSujet">Sujet *</label>
+                        <select id="contactSujet" name="contactSujet" required>
+                            <option value="">Choisissez un sujet</option>
+                            <option value="information">Demande d'information</option>
+                            <option value="devis">Demande de devis</option>
+                            <option value="reclamation">Réclamation</option>
+                            <option value="partenariat">Partenariat</option>
+                            <option value="carriere">Carrière - Devenir chauffeur</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactMessage">Message *</label>
+                        <textarea id="contactMessage" name="contactMessage" rows="6" required placeholder="Décrivez votre demande en détail..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-hero btn-hero-primary" style="width: 100%;">
+                        Envoyer le message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">&copy; 2025 MonChauffeur 2.0. Tous droits réservés.</p>
+    <p style="font-size: 0.95rem; color: #64748b;">Votre sécurité est notre priorité absolue 🛡</p>
+    <div style="margin-top: 1.5rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+        <a href="#" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">Mentions légales</a>
+        <a href="#" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">Conditions d'utilisation</a>
+        <a href="#" style="color: #94a3b8; text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">Politique de confidentialité</a>
+    </div>
+</footer>
+
+<script>
+    const ORIGIN = (typeof window !== 'undefined' && /^https?:/.test(window.location.origin)) 
+        ? window.location.origin 
+        : 'http://localhost:5000';
+    const API_URL = ORIGIN + '/api';
+
+    // Effet de scroll sur le header
+    window.addEventListener('scroll', () => {
+        const header = document.getElementById('header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+
+    // Navigation
+    function showSection(sectionId) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+        document.getElementById(sectionId).classList.remove('hidden');
+        document.getElementById('navLinks').classList.remove('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMenu() {
+        document.getElementById('navLinks').classList.toggle('active');
+    }
+
+    // Loader
+    function showLoader(formId) {
+        const button = document.querySelector(`#${formId} button[type="submit"]`);
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> Envoi en cours...';
+        }
+    }
+
+    function hideLoader(formId, originalText) {
+        const button = document.querySelector(`#${formId} button[type="submit"]`);
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    }
+
+    // Formulaire de réservation
+    const reservationForm = document.getElementById('reservationForm');
+    if (reservationForm) {
+        reservationForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!document.getElementById('acceptContract').checked) {
+                alert('⚠ Vous devez accepter les termes et conditions du contrat pour continuer.');
+                return;
+            }
+
+            const data = Object.fromEntries(new FormData(this).entries());
+            showLoader('reservationForm');
+
+            try {
+                const response = await fetch(`${API_URL}/reservations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                const successMsg = document.getElementById('successMessage');
+
+                if (result.success) {
+                    successMsg.innerHTML = `✅ ${result.message} (Réservation #${result.reservationId})`;
+                    successMsg.classList.remove('hidden');
+                    this.reset();
+                    setTimeout(() => successMsg.classList.add('hidden'), 7000);
+                } else {
+                    alert('❌ Erreur: ' + result.message);
+                }
+            } catch (err) {
+                console.error('❌ Erreur:', err);
+                alert('❌ Erreur de connexion au serveur. Vérifiez votre connexion internet et réessayez.');
+            } finally {
+                hideLoader('reservationForm', '✅ Confirmer ma réservation');
+            }
+        });
+    }
+
+    // Formulaire de contact
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const data = Object.fromEntries(new FormData(this).entries());
+        showLoader('contactForm');
+
+        try {
+            const response = await fetch(`${API_URL}/contacts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            const successMsg = document.getElementById('contactSuccessMessage');
+
+            if (result.success) {
+                successMsg.innerHTML = '✅ ' + result.message + ' Nous vous répondrons rapidement.';
+                successMsg.classList.remove('hidden');
+                this.reset();
+                setTimeout(() => successMsg.classList.add('hidden'), 7000);
+            } else {
+                alert('❌ Erreur: ' + result.message);
+            }
+        } catch (err) {
+            console.error('❌ Erreur:', err);
+            alert('❌ Erreur de connexion au serveur. Vérifiez votre connexion internet et réessayez.');
+        } finally {
+            hideLoader('contactForm', 'Envoyer le message');
+        }
+    });
+
+    // Date minimale = aujourd'hui
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+    }
+</script>
+</body>
+</html>
