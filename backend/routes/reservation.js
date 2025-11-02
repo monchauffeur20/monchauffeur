@@ -5,7 +5,8 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 // -------------------- CONFIG EMAIL --------------------
-const transporter = nodemailer.createTransport({
+const EMAIL_ENABLED = process.env.EMAIL_ENABLED === 'true';
+const transporter = EMAIL_ENABLED ? nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: parseInt(process.env.EMAIL_PORT),
     secure: false,
@@ -14,7 +15,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASSWORD
     },
     tls: { rejectUnauthorized: false }
-});
+}) : null;
 
 // -------------------- ROUTE POST /api/reservations --------------------
 router.post('/', async (req, res) => {
@@ -90,8 +91,10 @@ router.post('/', async (req, res) => {
         };
 
         // 4️⃣ Envoi des deux emails
-        await transporter.sendMail(mailClient);
-        await transporter.sendMail(mailAdmin);
+        if (EMAIL_ENABLED) {
+            await transporter.sendMail(mailClient);
+            await transporter.sendMail(mailAdmin);
+        }
 
         console.log(`📨 Réservation de ${nom} enregistrée et emails envoyés.`);
         res.status(201).json({
