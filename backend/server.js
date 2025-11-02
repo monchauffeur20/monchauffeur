@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 require('dotenv').config();
+const db = require('./config/database');
 
 const app = express();
 
@@ -18,6 +19,16 @@ const contactRoutes = require('./routes/contact');
 
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/contacts', contactRoutes);
+
+app.get('/api/db/health', async (req, res) => {
+    try {
+        const [rows] = await db.execute('SELECT 1 AS ok');
+        res.json({ ok: true, rows });
+    } catch (e) {
+        console.error('DB health error:', e);
+        res.status(500).json({ ok: false, error: e.code || e.message });
+    }
+});
 
 // Route test API
 app.get('/api', (req, res) => {
