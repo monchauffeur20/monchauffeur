@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 require('dotenv').config();
 
 // -------------------- CONFIG EMAIL --------------------
@@ -19,6 +20,9 @@ const transporter = EMAIL_ENABLED ? nodemailer.createTransport({
     socketTimeout: 20000,
     tls: { rejectUnauthorized: false }
 }) : null;
+const FROM = process.env.EMAIL_FROM || `"MonChauffeur 2.0" <${process.env.EMAIL_USER}>`;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 // -------------------- ROUTE POST /api/reservations --------------------
 router.post('/', async (req, res) => {
@@ -48,9 +52,10 @@ router.post('/', async (req, res) => {
 
         // 2️⃣ Envoi email au client
         const mailClient = {
-            from: `"MonChauffeur 2.0" <${process.env.EMAIL_USER}>`,
+            from: FROM,
             to: email,
             subject: '✅ Confirmation de réservation - MonChauffeur 2.0',
+            replyTo: email,
             html: `
                 <div style="font-family: Arial; padding: 20px; background: #f5f5f5;">
                     <h2 style="color:#16a34a;">Merci pour votre réservation, ${nom} !</h2>
@@ -73,7 +78,7 @@ router.post('/', async (req, res) => {
 
         // 3️⃣ Envoi email à l’admin
         const mailAdmin = {
-            from: `"MonChauffeur 2.0" <${process.env.EMAIL_USER}>`,
+            from: FROM,
             to: process.env.EMAIL_USER,
             subject: `🚘 Nouvelle réservation reçue - ${nom}`,
             html: `
@@ -94,7 +99,10 @@ router.post('/', async (req, res) => {
         };
 
         // 4️⃣ Envoi des deux emails
-        if (EMAIL_ENABLED) {
+        if (RESEND_API_KEY && resend) {
+            await resend.emails.send({ from: FROM, to: email, subject: mailClient.subject, html: mailClient.html, reply_to: email });
+            await resend.emails.send({ from: FROM, to: process.env.EMAIL_USER, subject: mailAdmin.subject, html: mailAdmin.html });
+        } else if (EMAIL_ENABLED && transporter) {
             await transporter.sendMail(mailClient);
             await transporter.sendMail(mailAdmin);
         }
